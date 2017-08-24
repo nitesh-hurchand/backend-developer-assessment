@@ -12,7 +12,6 @@ namespace musicbrainz.backend.api
     {
         public void Configuration(IAppBuilder app)
         {
-            ConfigureAuth(app);
         }
     }
 }

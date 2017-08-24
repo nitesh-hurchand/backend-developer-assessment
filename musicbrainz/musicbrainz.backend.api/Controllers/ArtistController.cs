@@ -76,29 +76,15 @@ namespace musicbrainz.backend.api.Controllers
                 return response;
             }
 
-            //var artistFromRemote = MusicBrainz.Search.Artist(arid: artistFromDb.Uid.ToString());
-            var artistReleaseRemote = _remoteServiceProvider.SearchReleases(artistFromDb.Uid);
+            var result = _remoteServiceProvider.SearchReleases(artistFromDb.Uid);
 
-            if (artistReleaseRemote.Data.Count <= 0)
+            var releaseModels = result as IList<ReleaseModel> ?? result.ToList();
+            if (result == null || !releaseModels.Any())
             {
                 return response;
             }
 
-            foreach (var item in artistReleaseRemote.Data)
-            {
-                response.Results.Add(new ReleaseModel()
-                {
-                    ReleaseId = item.Id,
-                    Title = item.Title,
-                    Status = item.Status,
-                    Label = item.Labelinfolist.Any() ? item.Labelinfolist.First().Label.Name : null,
-                    NumberOfTracks = item.Mediumlist.Trackcount.ToString(),
-                    OtherArtists = item.Artistcredit
-                    .Where(x => x.Artist.Id != artistFromDb.Uid.ToString())
-                    .Select(x => new OtherArtistModel() { Id = x.Artist.Id, Name = x.Artist.Name })
-                    .ToList()
-                });
-            }
+            response.Results = releaseModels.ToList();
             return response;
         }
     }
